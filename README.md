@@ -2,6 +2,10 @@
 
 以 Phaser.js 製作的台灣料理與多元族群文化配對闖關遊戲，共十題。
 
+## 線上遊玩
+
+[直接開始遊玩](https://crs0517.github.io/wannaeattt/)
+
 ## 開始遊戲
 
 在瀏覽器開啟 `index.html`。Phaser 由 jsDelivr CDN 載入，遊玩時需連上網路。
