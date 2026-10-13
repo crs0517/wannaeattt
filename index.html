@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123d39">
+  <title>舌尖上的島嶼｜台灣料理 × 族群文化配對</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #183c38;
+      --muted: #687a70;
+      --paper: #f6f3eb;
+      --leaf: #28715d;
+      --sun: #f2bd55;
+      --line: #dce3d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 5%, rgba(242, 189, 85, .13), transparent 32rem),
+        radial-gradient(ellipse at 88% 55%, rgba(49, 117, 95, .10), transparent 36rem),
+        var(--paper);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    }
+    .page { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 48px; }
+    .masthead { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: .04em; }
+    .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; color: #fff5d9; background: var(--ink); font-size: 21px; }
+    .brand small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .16em; }
+    .top-note { color: var(--muted); font-size: 13px; }
+    .game-shell { overflow: hidden; border: 1px solid rgba(24,60,56,.10); border-radius: 26px; background: #fffdf8; box-shadow: 0 24px 70px rgba(27, 62, 52, .13), 0 3px 8px rgba(27, 62, 52, .06); }
+    #game { width: 100%; display: block; }
+    #game canvas { display: block; width: 100% !important; height: auto !important; border-radius: 25px; }
+    .below { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; margin-top: 18px; }
+    .info-card { padding: 19px 21px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255, 253, 248, .82); }
+    .info-card h2 { margin: 0 0 9px; font-size: 15px; letter-spacing: .04em; }
+    .info-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+    .key { display: inline-grid; min-width: 25px; height: 24px; margin: 0 2px; padding: 0 6px; place-items: center; border: 1px solid #ced8ce; border-bottom-width: 2px; border-radius: 7px; background: #fff; color: var(--ink); font-size: 11px; font-weight: 800; }
+    .sources { display: flex; flex-wrap: wrap; gap: 7px 14px; margin-top: 9px; }
+    .sources a { color: #28715d; font-size: 12px; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .sources a:hover { color: #174d40; }
+    @media (max-width: 760px) {
+      .page { width: min(100% - 16px, 580px); padding-top: 14px; }
+      .masthead { margin: 0 4px 12px; }
+      .top-note { display: none; }
+      .game-shell { border-radius: 16px; }
+      #game canvas { border-radius: 15px; }
+      .below { grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+      .info-card { padding: 15px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">食</span><span>島嶼食旅・學習所<small>TAIWAN FOOD & CULTURE QUEST</small></span></div>
+      <div class="top-note">十道料理 · 十段文化旅程 · 用好奇心認識台灣</div>
+    </header>
+
+    <section class="game-shell" aria-label="Phaser 台灣料理與族群文化配對遊戲">
+      <div id="game"></div>
+    </section>
+
+    <section class="below">
+      <article class="info-card">
+        <h2>怎麼玩</h2>
+        <p>用 <span class="key">←</span><span class="key">→</span> 移動小旅人到答案站，按 <span class="key">Enter</span> 或 <span class="key">Space</span> 確認；也可以直接點選答案卡。每題答對得 1 分，答錯不扣分。每次作答後會看到料理背景與簡易食譜，再前往下一題。</p>
+      </article>
+      <article class="info-card">
+        <h2>文化小提醒與資料來源</h2>
+        <p>料理與族群的關聯會因地區、家庭與時代而不同；遊戲呈現的是代表性文化線索，不代表某道料理只屬於單一族群。食譜為學習用摘要，各地家庭做法可能不同。</p>
+        <nav class="sources" aria-label="遊戲文化資料來源">
+          <a href="https://tainan400.tainan.gov.tw/upload/resource/files/O%E5%9C%8B%E5%B0%8F%E7%B5%84-%E5%8F%B0%E5%8D%97400%E5%BE%9E%E9%A3%9F%E6%8B%9B%E4%BE%86.pdf" target="_blank" rel="noreferrer">臺南400・閩粵移民飲食教案</a>
+          <a href="https://www.kmdn.gov.tw/1117/1271/1272/557757?cprint=pt" target="_blank" rel="noreferrer">金門日報・粵式腸粉</a>
+          <a href="https://thcdc.hakka.gov.tw/12205/12214/12215/169817/post" target="_blank" rel="noreferrer">客家文化發展中心・擂茶</a>
+          <a href="https://lov.vac.gov.tw/zh-tw/village_c_1_165.htm" target="_blank" rel="noreferrer">國軍退除役官兵輔導委員會・眷村飲食</a>
+          <a href="https://travel.tycg.gov.tw/zh-tw/consume/detail/1997" target="_blank" rel="noreferrer">桃園觀光導覽網・忠貞商圈米干</a>
+          <a href="https://nit.immigration.gov.tw/Multicultural/Detail/1000084" target="_blank" rel="noreferrer">移民署・越南河粉</a>
+          <a href="https://nit.immigration.gov.tw/Multicultural/Detail/a460249c-53f1-42cc-ba44-33f3c5174cbb" target="_blank" rel="noreferrer">移民署・印尼沙爹</a>
+          <a href="https://ilabor.ntpc.gov.tw/ckeditor/downloadFile/856320663?serverName=a7b27289-2afd-4b20-8b3f-d6e29212bd7b" target="_blank" rel="noreferrer">新北市國際飲食教育・菲律賓阿多波</a>
+          <a href="https://www.cip.gov.tw/zh-tw/tribe/grid-list/5839F78F6C869EE4D0636733C6861689/info.html" target="_blank" rel="noreferrer">原民會・達悟族</a>
+          <a href="https://www.cip.gov.tw/zh-tw/tribe/grid-list/67E3CC5AE2F10A8BD0636733C6861689/info.html" target="_blank" rel="noreferrer">原民會・排灣族</a>
+        </nav>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const W = 1120;
+    const H = 700;
+    const COLORS = {
+      ink: 0x183c38, muted: 0x687a70, leaf: 0x28715d, sun: 0xf2bd55,
+      paper: 0xf6f3eb, white: 0xfffdf8, line: 0xdce3d8,
+      greenPale: 0xe8f1e7, red: 0xc96950, redPale: 0xf8e8df
+    };
+    const groups = [
+      { id: 'minnan', name: '閩南／在地小吃', short: '閩南', emoji: '🦪' },
+      { id: 'cantonese', name: '粵籍／廣東料理', short: '廣東', emoji: '🥢' },
+      { id: 'hakka', name: '客家', short: '客家', emoji: '🍵' },
+      { id: 'military', name: '戰後移民／眷村', short: '眷村', emoji: '🍜' },
+      { id: 'yunnan', name: '滇緬社群', short: '滇緬', emoji: '🍲' },
+      { id: 'vietnam', name: '越南新住民', short: '越南', emoji: '🌿' },
+      { id: 'indonesia', name: '印尼新住民', short: '印尼', emoji: '🔥' },
+      { id: 'philippines', name: '菲律賓新住民', short: '菲律賓', emoji: '🍗' },
+      { id: 'tao', name: '達悟族（雅美族）', short: '達悟族', emoji: '🌊' },
+      { id: 'paiwan', name: '排灣族', short: '排灣族', emoji: '🌾' }
+    ];
+    const rounds = [
+      {
+        dish: '蚵仔煎', emoji: '🦪', group: 'minnan', region: '在地小吃',
+        clue: '鮮蚵、蛋、青菜與番薯粉漿，在煎台上煎成軟Q餅。',
+        origin: '蚵仔煎是台灣沿海蚵業與閩粵移民飲食交會形成的庶民小吃；地方流傳多種由來，沒有單一說法。',
+        recipe: '番薯粉加水調成粉漿，入鍋放鮮蚵、蛋與青菜煎熟，淋上甜辣醬。'
+      },
+      {
+        dish: '腸粉', emoji: '🥢', group: 'cantonese', region: '米食點心',
+        clue: '薄滑的米漿蒸皮捲起蝦、牛肉或其他餡料，再淋醬油。',
+        origin: '腸粉是廣東常見的米食點心，從街頭早餐到茶樓都有不同配料與做法，在台灣港式餐飲也很常見。',
+        recipe: '把在來米漿薄薄蒸熟，放入蝦仁或牛肉捲起，淋豉油並撒蔥花。'
+      },
+      {
+        dish: '擂茶', emoji: '🍵', group: 'hakka', region: '手作茶飲',
+        clue: '茶葉、芝麻與堅果等材料磨成香濃茶飲，常搭配米香。',
+        origin: '擂茶與客家茶飲文化相連，材料和鹹甜口味會隨地方、家庭與當代創意變化。',
+        recipe: '將茶葉、芝麻與花生等乾料研磨成粉或膏，沖入熱水攪勻，可加米香或穀物。'
+      },
+      {
+        dish: '紅燒牛肉麵', emoji: '🍜', group: 'military', region: '家常麵食',
+        clue: '紅燒牛肉與麵條同碗，湯頭融合醬香、辛香料與在地口味。',
+        origin: '戰後移民帶來各地麵食和調味，與台灣食材交融形成多種眷村菜；牛肉麵的源流有不同說法。',
+        recipe: '牛腱煎香後以豆瓣醬、醬油、薑與八角燉軟，搭配煮熟麵條和青菜。'
+      },
+      {
+        dish: '米干', emoji: '🍲', group: 'yunnan', region: '米食湯麵',
+        clue: '米漿蒸成薄片再切條，配上熱湯、肉片與蛋包。',
+        origin: '1950年代滇緬軍民在桃園龍岡落腳，為了生活販售家鄉味；米干逐漸成為忠貞商圈的代表料理。',
+        recipe: '米漿蒸成薄片後切寬條，放入大骨湯，搭配肉片、蛋、蔥花與自製醬料。'
+      },
+      {
+        dish: '牛肉河粉', emoji: '🍜', group: 'vietnam', region: '米製湯麵',
+        clue: '寬米製河粉放進清香熱湯，搭配牛肉、香草、豆芽與青檸。',
+        origin: '河粉是越南具代表性的料理，各地湯頭與配料不同；它也承載許多越南新住民的家鄉記憶。',
+        recipe: '牛骨與洋蔥、薑和香料熬湯，加入燙熟米河粉和薄牛肉片，配香草、豆芽與青檸。'
+      },
+      {
+        dish: '沙爹（Sate）', emoji: '🔥', group: 'indonesia', region: '香料烤串',
+        clue: '香料醃肉串在竹籤上炭烤，常蘸花生醬一起吃。',
+        origin: '沙爹源自印尼，也廣泛流傳於東南亞各地；各地的新住民家鄉食譜和醬料都不盡相同。',
+        recipe: '雞肉以薑黃、香茅、蒜和少許椰糖醃入味，串起烤熟，搭配花生、辣椒與椰奶調成的醬。'
+      },
+      {
+        dish: '雞肉阿多波', emoji: '🍗', group: 'philippines', region: '醋香燉雞',
+        clue: '雞肉以醋、醬油、蒜與胡椒燉煮，鹹香中帶酸。',
+        origin: '阿多波是菲律賓各地常見的家常料理，各家庭會調整醋、醬油和香料比例。',
+        recipe: '雞肉用醋和醬油略醃，與蒜、月桂葉、胡椒粒加水燉熟，收汁後配飯。'
+      },
+      {
+        dish: '飛魚乾', emoji: '🐟', group: 'tao', region: '海味保存料理',
+        clue: '飛魚季依節期捕撈，部分漁獲日曬保存，留待魚季後食用。',
+        origin: '飛魚文化連結達悟族的海洋曆法、分享與季節規範；不同部落和時節有各自的習俗。',
+        recipe: '魚體整理乾淨後依傳統方式抹鹽、日曬或煙燻保存；食用與保存規範會依季節和部落而異。'
+      },
+      {
+        dish: '葉包米食', emoji: '🍃', group: 'paiwan', region: '葉包料理',
+        clue: '植物葉片包裹小米或糯米等食材，內餡常見肉塊。',
+        origin: '祈那福是排灣族慶典或婚嫁會準備的代表食物之一；cinavu 有「以葉包裹食物」之意。',
+        recipe: '用假酸漿葉包入小米或糯米、芋頭粉與肉餡，再蒸熟；各地配料和包法可能不同。'
+      }
+    ];
+    const stationX = [265, 560, 855];
+
+    class FoodQuest extends Phaser.Scene {
+      constructor() { super('FoodQuest'); }
+
+      create() {
+        this.level = 0;
+        this.score = 0;
+        this.choiceIndex = 1;
+        this.started = false;
+        this.locked = false;
+        this.paintBackdrop(0);
+        this.addTopBrand();
+        this.startScreen = this.add.container(0, 0);
+        this.drawStartScreen();
+
+        this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.onKey = (event) => {
+          if (!this.started) {
+            if (event.code === 'Enter' || event.code === 'Space') this.startGame();
+            return;
+          }
+          if (this.learningLayer) {
+            if (event.code === 'Enter' || event.code === 'Space') this.continueRound();
+            return;
+          }
+          if (this.isFinished) {
+            if (event.code === 'Enter' || event.code === 'Space') this.restartGame();
+            return;
+          }
+          if (this.locked) return;
+          if (event.code === 'ArrowLeft' || event.code === 'KeyA') this.moveChoice(-1);
+          if (event.code === 'ArrowRight' || event.code === 'KeyD') this.moveChoice(1);
+          if (event.code === 'Enter' || event.code === 'Space') this.submitChoice();
+        };
+        this.input.keyboard.on('keydown', this.onKey);
+      }
+
+      addTopBrand() {
+        this.add.text(48, 31, '島嶼食旅・學習所', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '15px',
+          color: '#28715d', fontStyle: 'bold', letterSpacing: 1
+        });
+        this.add.text(48, 54, '舌尖上的島嶼', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '31px',
+          color: '#183c38', fontStyle: 'bold'
+        });
+        this.scorePill = this.add.container(990, 50);
+        const pill = this.add.graphics();
+        pill.fillStyle(COLORS.greenPale, 1); pill.fillRoundedRect(-78, -23, 128, 46, 23);
+        this.scorePill.add(pill);
+        this.scoreText = this.add.text(-66, -10, `✦  0 / ${rounds.length}`, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '16px',
+          color: '#28715d', fontStyle: 'bold'
+        });
+        this.scorePill.add(this.scoreText);
+      }
+
+      paintBackdrop(level) {
+        const palettes = [
+          [0xdff0ee, 0x95c9c5, 0x377b78], [0xe8f1df, 0xb2cf97, 0x58866c],
+          [0xf1ead9, 0xd8bd87, 0x9a7b55], [0xf2ebd9, 0xd7c278, 0x73935d],
+          [0xe6efe8, 0xb3c7b3, 0x708d74]
+        ];
+        const pal = palettes[level % palettes.length];
+        if (!this.bg) this.bg = this.add.graphics();
+        this.bg.clear();
+        this.bg.fillStyle(COLORS.paper, 1); this.bg.fillRect(0, 0, W, H);
+        this.bg.fillStyle(pal[0], 1); this.bg.fillRect(0, 98, W, H - 98);
+        this.bg.fillStyle(pal[1], .55);
+        this.bg.fillEllipse(120, 675, 670, 295);
+        this.bg.fillEllipse(720, 682, 700, 305);
+        this.bg.fillStyle(pal[2], .26);
+        this.bg.fillEllipse(1010, 644, 440, 235);
+        this.bg.fillStyle(COLORS.white, .76); this.bg.fillRoundedRect(36, 22, W - 72, 77, 22);
+      }
+
+      drawStartScreen() {
+        const g = this.add.graphics();
+        g.fillStyle(COLORS.white, .97); g.fillRoundedRect(114, 145, 892, 470, 34);
+        g.fillStyle(COLORS.greenPale, 1); g.fillCircle(847, 373, 142);
+        g.fillStyle(COLORS.sun, .9); g.fillCircle(906, 297, 45);
+        this.startScreen.add(g);
+        this.startScreen.add(this.add.text(165, 200, '沿著滋味，認識彼此', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '39px',
+          color: '#183c38', fontStyle: 'bold'
+        }));
+        this.startScreen.add(this.add.text(168, 272, '移動小旅人，為台灣料理找到文化脈絡。\n十道題目，答對 +1 分；答錯不扣分。\n每次作答後，都能閱讀料理背景與簡易食譜。', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '19px',
+          color: '#687a70', lineSpacing: 12
+        }));
+        this.startScreen.add(this.add.text(168, 375, '←  → 移動　　Enter / Space 配對', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '16px',
+          color: '#28715d', fontStyle: 'bold'
+        }));
+        this.startScreen.add(this.add.text(715, 291, '🍲', { fontSize: '82px' }).setOrigin(.5));
+        this.startScreen.add(this.add.text(824, 415, '🌾', { fontSize: '50px' }).setOrigin(.5));
+        this.startScreen.add(this.add.text(918, 450, '🐟', { fontSize: '46px' }).setOrigin(.5));
+        this.startScreen.add(this.add.text(787, 486, '🍵', { fontSize: '42px' }).setOrigin(.5));
+        this.startButton = this.add.container(328, 521);
+        const buttonG = this.add.graphics();
+        buttonG.fillStyle(COLORS.leaf, 1); buttonG.fillRoundedRect(-161, -30, 322, 60, 20);
+        this.startButton.add(buttonG);
+        this.startButton.add(this.add.text(0, -11, '開始島嶼美食冒險', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '19px',
+          color: '#ffffff', fontStyle: 'bold'
+        }).setOrigin(.5, .5));
+        this.startButton.setSize(322, 60).setInteractive({ useHandCursor: true });
+        this.startButton.on('pointerover', () => this.startButton.setScale(1.025));
+        this.startButton.on('pointerout', () => this.startButton.setScale(1));
+        this.startButton.on('pointerdown', () => this.startGame());
+        this.startScreen.add(this.startButton);
+      }
+
+      startGame() {
+        if (this.started) return;
+        this.started = true;
+        this.startScreen.destroy(true);
+        this.showRound();
+      }
+
+      showRound() {
+        this.isFinished = false;
+        this.locked = false;
+        this.choiceIndex = 1;
+        const q = rounds[this.level];
+        this.paintBackdrop(this.level);
+        this.updateScore();
+        this.drawProgress();
+        this.heroTween?.stop();
+        this.roundLayer?.destroy(true);
+        this.roundLayer = this.add.container(0, 0);
+
+        const card = this.add.graphics();
+        card.fillStyle(COLORS.white, 1); card.fillRoundedRect(70, 167, 980, 183, 24);
+        card.lineStyle(1, COLORS.line, 1); card.strokeRoundedRect(70, 167, 980, 183, 24);
+        card.fillStyle(0xfff2d7, 1); card.fillCircle(177, 257, 66);
+        this.roundLayer.add(card);
+        this.roundLayer.add(this.add.text(177, 256, q.emoji, { fontSize: '59px' }).setOrigin(.5));
+        this.roundLayer.add(this.add.text(270, 191, `第 ${this.level + 1} 關  /  ${rounds.length}`, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '13px',
+          color: '#28715d', fontStyle: 'bold', letterSpacing: 1
+        }));
+        this.roundLayer.add(this.add.text(270, 218, q.dish, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '29px',
+          color: '#183c38', fontStyle: 'bold'
+        }));
+        this.roundLayer.add(this.add.text(271, 263, q.clue, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '16px',
+          color: '#687a70', wordWrap: { width: 700 }
+        }));
+        const region = this.add.text(914, 194, q.region, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '12px',
+          color: '#687a70', backgroundColor: '#f0f4ed', padding: { x: 10, y: 7 }
+        }).setOrigin(1, 0);
+        this.roundLayer.add(region);
+
+        const allWrong = groups.filter(g => g.id !== q.group);
+        const wrong = Phaser.Utils.Array.Shuffle([...allWrong]).slice(0, 2);
+        this.options = Phaser.Utils.Array.Shuffle([groups.find(g => g.id === q.group), ...wrong]);
+        this.optionCards = [];
+        this.options.forEach((group, i) => this.makeOptionCard(group, i));
+        this.makePlayer();
+        this.feedbackText = this.add.text(W / 2, 637, '走到你認為正確的答案站，再按 Enter 配對', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '14px',
+          color: '#687a70', fontStyle: 'bold'
+        }).setOrigin(.5);
+        this.roundLayer.add(this.feedbackText);
+      }
+
+      drawProgress() {
+        this.progressLayer?.destroy(true);
+        this.progressLayer = this.add.container(0, 0);
+        rounds.forEach((_, i) => {
+          const x = 326 + i * 49;
+          const g = this.add.graphics();
+          const done = i < this.level;
+          const current = i === this.level;
+          g.fillStyle(done ? COLORS.leaf : current ? COLORS.sun : 0xe2e8df, 1);
+          g.fillRoundedRect(x, 121, 38, 7, 4);
+          this.progressLayer.add(g);
+        });
+        this.progressLayer.add(this.add.text(562, 137, `${this.level + 1} / ${rounds.length} 關`, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '12px',
+          color: '#687a70', fontStyle: 'bold'
+        }).setOrigin(.5));
+      }
+
+      makeOptionCard(group, i) {
+        const x = stationX[i];
+        const y = 440;
+        const card = this.add.container(x, y);
+        const g = this.add.graphics();
+        g.fillStyle(COLORS.white, 1); g.fillRoundedRect(-128, -53, 256, 106, 19);
+        g.lineStyle(2, COLORS.line, 1); g.strokeRoundedRect(-128, -53, 256, 106, 19);
+        g.fillStyle(COLORS.greenPale, 1); g.fillCircle(-87, 0, 24);
+        card.add(g);
+        card.add(this.add.text(-87, -1, `0${i + 1}`, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '13px',
+          color: '#28715d', fontStyle: 'bold'
+        }).setOrigin(.5));
+        card.add(this.add.text(-49, -14, group.name, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: group.name.length > 8 ? '15px' : '18px',
+          color: '#183c38', fontStyle: 'bold'
+        }).setOrigin(0, .5));
+        card.add(this.add.text(0, 36, `答案站 0${i + 1}`, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '11px',
+          color: '#829087', letterSpacing: 1
+        }).setOrigin(.5));
+        card.setSize(256, 106).setInteractive({ useHandCursor: true });
+        card.on('pointerdown', () => {
+          if (this.locked) return;
+          this.moveToIndex(i);
+          this.submitChoice();
+        });
+        card.on('pointerover', () => { if (!this.locked && this.choiceIndex !== i) card.setAlpha(.82); });
+        card.on('pointerout', () => card.setAlpha(1));
+        this.roundLayer.add(card);
+        this.optionCards.push({ container: card, group });
+      }
+
+      makePlayer() {
+        this.playerShadow = this.add.ellipse(stationX[this.choiceIndex], 568, 64, 15, 0x2d5446, .17);
+        this.roundLayer.add(this.playerShadow);
+        this.player = this.add.container(stationX[this.choiceIndex], 547);
+        const p = this.add.graphics();
+        p.fillStyle(0x244c43, 1); p.fillRoundedRect(-19, -2, 38, 38, 13);
+        p.fillStyle(0xf2bd55, 1); p.fillRoundedRect(-18, 27, 14, 12, 5); p.fillRoundedRect(4, 27, 14, 12, 5);
+        p.fillStyle(0xf1c7a0, 1); p.fillCircle(0, -12, 18);
+        p.fillStyle(0xffffff, 1); p.fillRoundedRect(-20, -34, 40, 10, 5); p.fillCircle(0, -39, 11);
+        p.fillStyle(0x183c38, 1); p.fillCircle(-6, -13, 2); p.fillCircle(6, -13, 2);
+        p.lineStyle(2, 0x9d604b, 1); p.beginPath(); p.arc(0, -8, 6, .2, Math.PI - .2, false); p.strokePath();
+        p.fillStyle(0xf2bd55, 1); p.fillCircle(15, -28, 5);
+        this.player.add(p);
+        this.roundLayer.add(this.player);
+        this.heroTween = this.tweens.add({ targets: this.player, y: 544, duration: 760, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+        this.refreshSelection();
+      }
+
+      moveChoice(delta) {
+        this.moveToIndex(Phaser.Math.Clamp(this.choiceIndex + delta, 0, 2));
+      }
+
+      moveToIndex(index) {
+        if (index === this.choiceIndex) return;
+        this.choiceIndex = index;
+        this.tweens.add({ targets: this.player, x: stationX[index], duration: 230, ease: 'Cubic.out' });
+        this.tweens.add({ targets: this.playerShadow, x: stationX[index], duration: 230, ease: 'Cubic.out' });
+        this.refreshSelection();
+      }
+
+      refreshSelection() {
+        this.optionCards?.forEach((item, i) => {
+          const g = item.container.list[0];
+          g.clear();
+          g.fillStyle(COLORS.white, 1); g.fillRoundedRect(-128, -53, 256, 106, 19);
+          g.lineStyle(i === this.choiceIndex ? 3 : 2, i === this.choiceIndex ? COLORS.leaf : COLORS.line, 1);
+          g.strokeRoundedRect(-128, -53, 256, 106, 19);
+          if (i === this.choiceIndex) {
+            g.fillStyle(COLORS.sun, 1); g.fillCircle(106, -39, 8);
+          }
+        });
+      }
+
+      submitChoice() {
+        if (this.locked || !this.started || this.isFinished) return;
+        const selected = this.optionCards[this.choiceIndex].group;
+        const q = rounds[this.level];
+        this.locked = true;
+        this.heroTween?.pause();
+        const correct = selected.id === q.group;
+        if (correct) {
+          this.score += 1;
+          this.updateScore();
+          this.optionCards[this.choiceIndex].container.setScale(1.035);
+        } else {
+          this.cameras.main.shake(130, .002);
+        }
+        this.showAnswerPanel(q, correct);
+      }
+
+      showAnswerPanel(q, correct) {
+        const answer = groups.find(g => g.id === q.group);
+        this.learningLayer?.destroy(true);
+        this.learningLayer = this.add.container(0, 0);
+        const shade = this.add.rectangle(0, 98, W, H - 98, COLORS.ink, .3).setOrigin(0);
+        shade.setInteractive();
+        this.learningLayer.add(shade);
+
+        const card = this.add.graphics();
+        card.fillStyle(COLORS.white, 1); card.fillRoundedRect(110, 341, 900, 316, 25);
+        card.lineStyle(1, COLORS.line, 1); card.strokeRoundedRect(110, 341, 900, 316, 25);
+        this.learningLayer.add(card);
+        this.learningLayer.add(this.add.text(145, 361,
+          correct ? '答對了！　+1 分' : `這題不加分。正確答案是「${answer.name}」`, {
+            fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '21px',
+            color: correct ? '#28715d' : '#b55b46', fontStyle: 'bold'
+          }));
+        this.learningLayer.add(this.add.text(145, 406, '料理背景', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '12px',
+          color: '#829087', fontStyle: 'bold', letterSpacing: 1
+        }));
+        this.learningLayer.add(this.add.text(145, 427, q.origin, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '14px',
+          color: '#435d54', lineSpacing: 4, wordWrap: { width: 820 }
+        }));
+        this.learningLayer.add(this.add.text(145, 485, '簡易食譜', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '12px',
+          color: '#829087', fontStyle: 'bold', letterSpacing: 1
+        }));
+        this.learningLayer.add(this.add.text(145, 507, q.recipe, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '14px',
+          color: '#435d54', lineSpacing: 4, wordWrap: { width: 820 }
+        }));
+        this.learningLayer.add(this.add.text(145, 615, '食譜為學習用摘要，食材與做法會因地方和家庭而不同。', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '11px', color: '#829087'
+        }));
+
+        const button = this.add.container(900, 610);
+        const buttonG = this.add.graphics();
+        buttonG.fillStyle(COLORS.leaf, 1); buttonG.fillRoundedRect(-100, -23, 200, 46, 15);
+        button.add(buttonG);
+        button.add(this.add.text(0, 0, this.level === rounds.length - 1 ? '查看旅程成果 →' : '下一題 →', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '15px',
+          color: '#ffffff', fontStyle: 'bold'
+        }).setOrigin(.5));
+        button.setSize(200, 46).setInteractive({ useHandCursor: true });
+        button.on('pointerover', () => button.setScale(1.03));
+        button.on('pointerout', () => button.setScale(1));
+        button.on('pointerdown', () => this.continueRound());
+        this.learningLayer.add(button);
+      }
+
+      continueRound() {
+        if (!this.learningLayer) return;
+        this.learningLayer.destroy(true);
+        this.learningLayer = null;
+        this.level += 1;
+        if (this.level >= rounds.length) this.showFinish();
+        else this.showRound();
+      }
+
+      showFeedback(message, correct) {
+        this.feedbackText.setText(message);
+        this.feedbackText.setColor(correct ? '#28715d' : '#b55b46');
+        this.feedbackText.setFontSize(message.length > 42 ? '13px' : '14px');
+      }
+
+      updateScore() { this.scoreText.setText(`✦  ${this.score} / ${rounds.length}`); }
+
+      showFinish() {
+        this.isFinished = true;
+        this.paintBackdrop(4);
+        this.heroTween?.stop();
+        this.progressLayer?.destroy(true);
+        this.roundLayer?.destroy(true);
+        this.updateScore();
+        const panel = this.add.container(0, 0);
+        this.finishLayer?.destroy(true);
+        this.finishLayer = panel;
+        const g = this.add.graphics();
+        g.fillStyle(COLORS.white, .98); g.fillRoundedRect(180, 145, 760, 465, 34);
+        g.fillStyle(0xfff2d7, 1); g.fillCircle(560, 253, 63);
+        panel.add(g);
+        panel.add(this.add.text(560, 251, this.score === rounds.length ? '🏆' : '🌱', { fontSize: '53px' }).setOrigin(.5));
+        panel.add(this.add.text(560, 340, this.score === rounds.length ? '島嶼美食探險家！' : '旅程完成，收穫滿滿！', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '32px',
+          color: '#183c38', fontStyle: 'bold'
+        }).setOrigin(.5));
+        panel.add(this.add.text(560, 394, `你答對了 ${this.score} / ${rounds.length} 題`, {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '19px',
+          color: '#28715d', fontStyle: 'bold'
+        }).setOrigin(.5));
+        panel.add(this.add.text(560, 433, '每一道料理，都帶著土地、季節與人們的故事。', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '15px', color: '#687a70'
+        }).setOrigin(.5));
+        const again = this.add.container(560, 529);
+        const bg = this.add.graphics(); bg.fillStyle(COLORS.leaf, 1); bg.fillRoundedRect(-135, -27, 270, 54, 18);
+        again.add(bg);
+        again.add(this.add.text(0, 0, '再走一次島嶼旅程', {
+          fontFamily: 'Noto Sans TC, Microsoft JhengHei, sans-serif', fontSize: '17px',
+          color: '#ffffff', fontStyle: 'bold'
+        }).setOrigin(.5));
+        again.setSize(270, 54).setInteractive({ useHandCursor: true });
+        again.on('pointerdown', () => this.restartGame());
+        panel.add(again);
+      }
+
+      restartGame() {
+        this.level = 0; this.score = 0; this.choiceIndex = 1;
+        this.finishLayer?.destroy(true);
+        this.updateScore();
+        this.showRound();
+      }
+    }
+
+    const config = {
+      type: Phaser.AUTO,
+      parent: 'game',
+      width: W,
+      height: H,
+      backgroundColor: '#f6f3eb',
+      render: { antialias: true, roundPixels: true },
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+      input: { keyboard: true, mouse: true, touch: true },
+      scene: [FoodQuest]
+    };
+    new Phaser.Game(config);
+  </script>
+</body>
+</html>
